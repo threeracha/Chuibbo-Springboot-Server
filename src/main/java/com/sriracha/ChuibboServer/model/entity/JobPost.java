@@ -12,6 +12,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -38,6 +40,12 @@ public class JobPost {
     private LocalDateTime startDate;
 
     private LocalDateTime endDate;
+
+    @ManyToMany(mappedBy = "jobPosts")
+    private List<Area> areas = new ArrayList<Area>();
+
+    @ManyToMany(mappedBy = "jobPosts")
+    private List<Job> jobs = new ArrayList<Job>();
 
     @CreatedDate
     private LocalDateTime createdAt;
