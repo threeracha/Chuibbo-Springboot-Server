@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -18,15 +16,8 @@ public class Job {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "job_id")
     private Long id;
 
-    private String area;
-
-    @ManyToMany
-    @JoinTable(
-            name = "job_post_has_area",
-            joinColumns = @JoinColumn(name = "job_id")
-    )
-    private List<JobPost> jobPosts = new ArrayList<>();
-
+    private String jobType;
 }

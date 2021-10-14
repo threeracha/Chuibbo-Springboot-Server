@@ -57,12 +57,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // TODO session disable, access by role
         http
                 .httpBasic().disable() // REST API만을 고려, 기본 설정 해제
+                .cors().and()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                .headers().frameOptions().disable()
                 .and()
                     .authorizeRequests()
-                    .antMatchers("/api/v1/user/login/**", "/api/v1/user/sign").permitAll()
+                    .antMatchers("/api/v1/user/login/**", "/api/v1/user/signup").permitAll()
 //                    .antMatchers("/api/v1/**").hasRole(Role.USER.name())
                     .antMatchers("/api/v1/admin/**").hasRole("ADMIN")
                     .anyRequest().authenticated()

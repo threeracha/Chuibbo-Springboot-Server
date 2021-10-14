@@ -25,6 +25,7 @@ public class JobPost {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "job_post_id")
     private Long id;
 
     private String logoUrl;
@@ -35,16 +36,24 @@ public class JobPost {
 
     private String descriptionUrl;
 
-    private String career;
+    private Long careerType;
 
+    @Column(name = "startdate")
     private LocalDateTime startDate;
 
+    @Column(name = "enddate")
     private LocalDateTime endDate;
 
-    @ManyToMany(mappedBy = "jobPosts")
+    @ManyToMany
+    @JoinTable(name = "job_post_has_area",
+                joinColumns = @JoinColumn(name="job_post_id"),
+                inverseJoinColumns = @JoinColumn(name = "area_id"))
     private List<Area> areas = new ArrayList<Area>();
 
-    @ManyToMany(mappedBy = "jobPosts")
+    @ManyToMany
+    @JoinTable(name = "job_post_has_job",
+            joinColumns = @JoinColumn(name="job_post_id"),
+            inverseJoinColumns = @JoinColumn(name = "job_id"))
     private List<Job> jobs = new ArrayList<Job>();
 
     @CreatedDate
