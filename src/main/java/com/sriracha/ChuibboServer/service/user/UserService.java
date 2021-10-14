@@ -30,6 +30,7 @@ public class UserService {
     private final EmailService emailService;
 
     public Header signup(Map<String, String> user) {
+        // TODO 아이디 중복 불가처리?
         userRepository.save(User.builder()
                 .email(user.get("email"))
                 .password(passwordEncoder.encode(user.get("password")))

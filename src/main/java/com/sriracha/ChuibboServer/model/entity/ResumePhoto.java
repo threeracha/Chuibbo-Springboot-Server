@@ -28,6 +28,7 @@ public class ResumePhoto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "resume_photo_id")
     private Long id;
 
     private String photoUrl;
