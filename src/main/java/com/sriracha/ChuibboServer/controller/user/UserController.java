@@ -24,14 +24,14 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public Header<UserResponseDto> userInfo(@RequestBody String email) {
-        return userService.userInfo(email);
+    public Header<UserResponseDto> userInfo(@RequestHeader("Authorization") String jwt) {
+        return userService.userInfo(jwt);
     }
 
     // TODO 유효기간 계산해서 Redis에서 삭제하기 -> memory 공간을 쓸데없이 차지하기 때문
     @Transactional
     @GetMapping(value = "/logout")
-    public Header logout(@RequestBody String jwt) {
+    public Header logout(@RequestHeader("Authorization") String jwt) {
         return userService.logout(jwt);
     }
 
@@ -46,13 +46,13 @@ public class UserController {
     }
 
     @DeleteMapping("/withdraw")
-    public Header withdraw(@RequestParam Long id) {
-        return userService.withdraw(id);
+    public Header withdraw(@RequestHeader("Authorization") String jwt) {
+        return userService.withdraw(jwt);
     }
 
-    @GetMapping("/checkId")
-    public Header checkNickname(@RequestBody String nickName) { return userService.checkNickname(nickName); }
+    @GetMapping("/checkNickname")
+    public Header checkNickname(@RequestParam String nickname) { return userService.checkNickname(nickname); }
 
     @GetMapping("/checkEmail")
-    public Header checkEmail(@RequestBody String email) { return userService.checkEmail(email); }
+    public Header checkEmail(@RequestParam String email) { return userService.checkEmail(email); }
 }
