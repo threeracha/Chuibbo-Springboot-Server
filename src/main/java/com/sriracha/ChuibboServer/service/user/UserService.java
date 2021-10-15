@@ -30,12 +30,13 @@ public class UserService {
     private final EmailService emailService;
 
     public Header signup(Map<String, String> user) {
+        // TODO 아이디 중복 불가처리?
         userRepository.save(User.builder()
                 .email(user.get("email"))
                 .password(passwordEncoder.encode(user.get("password")))
                 .nickname(user.get("nickname"))
                 .role(Role.USER) // 최초 가입시 USER 로 설정
-                .build()).getUserId();
+                .build()).getId();
         return Header.OK();
     }
 
@@ -83,7 +84,7 @@ public class UserService {
 
         User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
 
-        Optional<User> optional = userRepository.findById(user.getUserId());
+        Optional<User> optional = userRepository.findById(user.getId());
 
         return optional.map(member -> {
             userRepository.delete(member);
@@ -103,7 +104,7 @@ public class UserService {
 
     private Header<UserResponseDto> response(User user) {
         UserResponseDto userResponseDto = UserResponseDto.builder()
-                .id(user.getUserId())
+                .id(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .build();

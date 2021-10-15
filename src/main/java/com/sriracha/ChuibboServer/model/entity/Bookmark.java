@@ -18,12 +18,22 @@ public class Bookmark {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long bookmarkId;
+    @Column(name = "bookmark_id")
+    private Long id;
+
+    private String area;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "job_post_id")
+    private JobPost jobPost;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
     @CreatedDate
     private LocalDateTime updatedAt;
-
 }
