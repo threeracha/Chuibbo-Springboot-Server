@@ -18,4 +18,5 @@ public class Area {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "area_id")
     private Long id;
+
 }

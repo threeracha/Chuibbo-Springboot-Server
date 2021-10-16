@@ -12,8 +12,6 @@ public class Bookmark {
     @Column(name = "bookmark_id")
     private Long id;
 
-    private String area;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -24,4 +22,5 @@ public class Bookmark {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
 }
