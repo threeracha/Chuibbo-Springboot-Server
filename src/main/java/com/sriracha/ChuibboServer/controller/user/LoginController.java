@@ -18,7 +18,7 @@ public class LoginController {
     private final LoginService loginService;
 
     // 로그인
-    @GetMapping("/")
+    @PostMapping("/")
     public Header<String> login(@RequestBody Map<String, String> user) {
         return loginService.login(user);
     }

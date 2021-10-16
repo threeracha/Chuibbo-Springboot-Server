@@ -52,9 +52,11 @@ public class UserService {
     }
 
     // 사용자 정보 : email, nickname
-    public Header<UserResponseDto> userInfo(String email) {
-        return userRepository.findByEmail(email)
-                .map(user -> response(user))
+    public Header<UserResponseDto> userInfo(String jwt) {
+        User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
+
+        return userRepository.findByEmail(user.getEmail())
+                .map(member -> response(member))
                 .orElseGet(() -> Header.ERROR("no data"));
     }
 
@@ -78,9 +80,11 @@ public class UserService {
     }
 
     // 탈퇴
-    public Header withdraw(Long id) {
+    public Header withdraw(String jwt) {
 
-        Optional<User> optional = userRepository.findById(id);
+        User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
+
+        Optional<User> optional = userRepository.findById(user.getId());
 
         return optional.map(member -> {
             userRepository.delete(member);
