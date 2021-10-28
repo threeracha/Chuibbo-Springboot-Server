@@ -1,5 +1,6 @@
 package com.sriracha.ChuibboServer.model.entity;
 
+import com.sriracha.ChuibboServer.model.enumclass.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,6 +29,8 @@ public class JobPost {
     @Column(name = "job_post_id")
     private Long id;
 
+    private Long openApiJobPostId;
+
     private String logoUrl;
 
     private String companyName;
@@ -35,8 +38,6 @@ public class JobPost {
     private String subject;
 
     private String descriptionUrl;
-
-    private Long careerType;
 
     @Column(name = "startdate")
     private LocalDateTime startDate;
@@ -55,6 +56,12 @@ public class JobPost {
             joinColumns = @JoinColumn(name="job_post_id"),
             inverseJoinColumns = @JoinColumn(name = "job_id"))
     private List<Job> jobs = new ArrayList<Job>();
+
+    @ManyToMany
+    @JoinTable(name = "job_post_has_career_type",
+            joinColumns = @JoinColumn(name="job_post_id"),
+            inverseJoinColumns = @JoinColumn(name = "career_type_id"))
+    private List<CareerType> careerTypes = new ArrayList<CareerType>();
 
     @CreatedDate
     private LocalDateTime createdAt;

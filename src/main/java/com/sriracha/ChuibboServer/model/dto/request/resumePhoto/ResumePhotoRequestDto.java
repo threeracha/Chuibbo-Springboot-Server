@@ -13,5 +13,5 @@ public class ResumePhotoRequestDto {
 
     private String photoUrl;
 
-    private String userId;
+    private Long userId;
 }

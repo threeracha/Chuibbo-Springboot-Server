@@ -1,6 +1,9 @@
 package com.sriracha.ChuibboServer.model.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -9,12 +12,12 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Builder
-public class Area {
+public class CareerType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "area_id")
+    @Column(name = "career_type_id")
     private Long id;
 
-    private String area;
+    private String career_type;
 }

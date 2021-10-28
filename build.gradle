@@ -82,6 +82,12 @@ dependencies {
 
 	// jy: AmazonS3
 	compile 'org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE'
+
+	// json parsing
+	compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
+	// jsoup HTML parser
+	implementation 'org.jsoup:jsoup:1.14.2'
 }
 
 test {
