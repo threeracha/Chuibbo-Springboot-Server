@@ -1,5 +1,6 @@
 package com.sriracha.ChuibboServer.service.jobPost;
 
+import com.sriracha.ChuibboServer.model.dto.response.JobPostResponseDto;
 import com.sriracha.ChuibboServer.model.entity.*;
 import com.sriracha.ChuibboServer.repository.AreaRepository;
 import com.sriracha.ChuibboServer.repository.CareerTypeRepository;
@@ -13,18 +14,15 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,7 +34,7 @@ public class JobPostService {
     private final JobRepository jobRepository;
     private final CareerTypeRepository careerTypeRepository;
 
-    public ResponseEntity saveJobPosts(String jsonData) throws ParseException {
+    public ResponseEntity saveJobPosts(String jsonData) throws ParseException, IOException {
 
         JSONObject jsonObject, position, jobMidCode, location, experienceLevel, company, detail;
 
@@ -64,8 +62,9 @@ public class JobPostService {
                 // 회사 logo 이미지 불러오기
                 if (!detail.get("href").toString().isEmpty()) {
                     String url = detail.get("href").toString();
-                    Document doc = Jsoup.parse(url);
-                    imageSource = doc.getElementsByClass("inner_thumb").select("img").attr("src");
+                    Document doc = Jsoup.connect(url).ignoreHttpErrors(true).get();
+                    if (!doc.getElementsByClass("inner_thumb").isEmpty())
+                        imageSource = doc.select(".inner_thumb img").attr("src");
                 }
 
                 // 여러개일 경우, ,(콤마)로 split
@@ -117,5 +116,25 @@ public class JobPostService {
                 .toLocalDateTime();
 
         return localDateTime;
+    }
+
+    public List<JobPostResponseDto> getJobPosts() {
+        return jobPostRepository.findAll().stream().map(jobPost -> entityToDto(jobPost)).collect(Collectors.toList());
+    }
+
+    private JobPostResponseDto entityToDto(JobPost jobPost) {
+        JobPostResponseDto jobPostResponseDto = JobPostResponseDto.builder()
+                .logoUrl(jobPost.getLogoUrl())
+                .companyName(jobPost.getCompanyName())
+                .subject(jobPost.getSubject())
+                .descriptionUrl(jobPost.getDescriptionUrl())
+                .startDate(jobPost.getStartDate())
+                .endDate(jobPost.getEndDate())
+                .areas(jobPost.getAreas())
+                .jobs(jobPost.getJobs())
+                .careerTypes(jobPost.getCareerTypes())
+                .build();
+
+        return jobPostResponseDto;
     }
 }

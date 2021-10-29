@@ -1,6 +1,5 @@
 package com.sriracha.ChuibboServer.model.entity;
 
-import com.sriracha.ChuibboServer.model.enumclass.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
