@@ -40,9 +40,9 @@ public class UserController {
         return userService.sendEmail(email);
     }
 
-    @PutMapping("")
-    public Header changePw(@RequestParam Long id, @RequestBody String password){
-        return userService.changePw(id, password);
+    @PutMapping("/change-password")
+    public Header changePw(@RequestHeader("Authorization") String jwt, @RequestBody String newPassword){
+        return userService.changePw(jwt, newPassword);
     }
 
     @DeleteMapping("/withdraw")

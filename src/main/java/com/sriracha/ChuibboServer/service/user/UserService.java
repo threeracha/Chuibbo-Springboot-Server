@@ -68,11 +68,13 @@ public class UserService {
     }
 
     // 비밀번호 변경
-    public Header changePw(Long id, String password) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setPassword(password);
-                    return user;
+    public Header changePw(String jwt, String newPassword) {
+        User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
+
+        return userRepository.findByEmail(user.getEmail())
+                .map(member -> {
+                    member.setPassword(passwordEncoder.encode(newPassword));
+                    return member;
                 })
                 .map(changeUserPw -> userRepository.save(changeUserPw))
                 .map(newUser -> response(newUser))
