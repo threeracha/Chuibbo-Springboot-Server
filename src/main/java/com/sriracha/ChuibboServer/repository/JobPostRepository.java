@@ -12,4 +12,6 @@ public interface JobPostRepository extends JpaRepository<JobPost, Long> {
     Optional<JobPost> findByOpenApiJobPostId(Long openApiJobPostId);
 
     List<JobPost> findAll();
+
+    List<JobPost> findTop8ByOrderByCreatedAtDesc();
 }

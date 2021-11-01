@@ -119,7 +119,7 @@ public class JobPostService {
     }
 
     public List<JobPostResponseDto> getJobPosts() {
-        return jobPostRepository.findAll().stream().map(jobPost -> entityToDto(jobPost)).collect(Collectors.toList());
+        return jobPostRepository.findTop8ByOrderByCreatedAtDesc().stream().map(jobPost -> entityToDto(jobPost)).collect(Collectors.toList());
     }
 
     private JobPostResponseDto entityToDto(JobPost jobPost) {

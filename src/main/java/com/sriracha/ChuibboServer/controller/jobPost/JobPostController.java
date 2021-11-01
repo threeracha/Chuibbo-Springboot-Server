@@ -4,6 +4,7 @@ import com.sriracha.ChuibboServer.common.responseEntity.StatusEnum;
 import com.sriracha.ChuibboServer.common.responseEntity.Message;
 import com.sriracha.ChuibboServer.model.dto.response.JobPostResponseDto;
 import com.sriracha.ChuibboServer.service.jobPost.JobPostService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.parser.ParseException;
@@ -33,6 +34,7 @@ public class JobPostController {
     private final JobPostService jobPostService;
 
     @GetMapping("/oapi")
+    @ApiOperation(value = "채용공고 저장", notes = "4시간마다 채용공고를 저장한다.")
     public void getOpenApi() throws IOException, ParseException {
         String accessKey = "";
         int count = 6;
@@ -71,7 +73,8 @@ public class JobPostController {
 
     }
 
-    @GetMapping("") // TODO: 홈에는 특정 기준에 따라 일부 jobPosts만 get하도록
+    @GetMapping("")
+    @ApiOperation(value = "홈 채용공고 조회", notes = "최신 8개의 채용공고를 조회한다.")
     public ResponseEntity<Message<List<JobPostResponseDto>>> getJobPosts() {
 
         List<JobPostResponseDto> jobPostResponseDtos = jobPostService.getJobPosts();
