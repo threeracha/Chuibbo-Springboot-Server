@@ -14,6 +14,8 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -119,7 +121,17 @@ public class JobPostService {
     }
 
     public List<JobPostResponseDto> getJobPosts() {
-        return jobPostRepository.findTop8ByOrderByCreatedAtDesc().stream().map(jobPost -> entityToDto(jobPost)).collect(Collectors.toList());
+        return jobPostRepository.findTop8ByOrderByCreatedAtDesc()
+                .stream().map(jobPost -> entityToDto(jobPost))
+                .collect(Collectors.toList());
+    }
+
+    public List<JobPostResponseDto> getAllJobPosts(int page) {
+        Pageable paging = PageRequest.of(page-1, 10);
+
+        return jobPostRepository.findAllByOrderByCreatedAtDesc(paging).getContent()
+                .stream().map(jobPost -> entityToDto(jobPost))
+                .collect(Collectors.toList());
     }
 
     private JobPostResponseDto entityToDto(JobPost jobPost) {

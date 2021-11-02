@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedReader;
@@ -74,10 +75,27 @@ public class JobPostController {
     }
 
     @GetMapping("")
-    @ApiOperation(value = "홈 채용공고 조회", notes = "최신 8개의 채용공고를 조회한다.")
+    @ApiOperation(value = "채용공고 홈 조회", notes = "최신 8개의 채용공고를 조회한다.")
     public ResponseEntity<Message<List<JobPostResponseDto>>> getJobPosts() {
 
         List<JobPostResponseDto> jobPostResponseDtos = jobPostService.getJobPosts();
+
+        HttpHeaders headers= new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
+
+        Message message = new Message();
+        message.setStatus(StatusEnum.OK);
+        message.setMessage("OK");
+        message.setData(jobPostResponseDtos);
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/more")
+    @ApiOperation(value = "채용공고 더보기 조회", notes = "전체 채용공고를 페이지별 조회한다.")
+    public ResponseEntity<Message<List<JobPostResponseDto>>> getAllJobPosts(@RequestParam int page) {
+
+        List<JobPostResponseDto> jobPostResponseDtos = jobPostService.getAllJobPosts(page);
 
         HttpHeaders headers= new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));

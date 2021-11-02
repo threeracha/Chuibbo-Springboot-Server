@@ -1,6 +1,8 @@
 package com.sriracha.ChuibboServer.repository;
 
 import com.sriracha.ChuibboServer.model.entity.JobPost;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +13,7 @@ import java.util.Optional;
 public interface JobPostRepository extends JpaRepository<JobPost, Long> {
     Optional<JobPost> findByOpenApiJobPostId(Long openApiJobPostId);
 
-    List<JobPost> findAll();
+    Page<JobPost> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
     List<JobPost> findTop8ByOrderByCreatedAtDesc();
 }
