@@ -46,8 +46,8 @@ public class JobPost {
 
     @ManyToMany
     @JoinTable(name = "job_post_has_area",
-                joinColumns = @JoinColumn(name="job_post_id"),
-                inverseJoinColumns = @JoinColumn(name = "area_id"))
+            joinColumns = @JoinColumn(name="job_post_id"),
+            inverseJoinColumns = @JoinColumn(name = "area_id"))
     private List<Area> areas = new ArrayList<Area>();
 
     @ManyToMany

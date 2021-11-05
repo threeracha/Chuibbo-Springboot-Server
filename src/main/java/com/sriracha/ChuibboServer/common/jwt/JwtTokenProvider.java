@@ -9,7 +9,6 @@
 
 package com.sriracha.ChuibboServer.common.jwt;
 
-import com.sriracha.ChuibboServer.model.enumclass.Role;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +42,7 @@ public class JwtTokenProvider {
      * refreshToken 1달~
      */
     // TODO 토큰 유효시간 정책 정하기
-    public final static long ACCESS_TOKEN_VALIDATION_SECOND = 1000L * 60 * 10;
+    public final static long ACCESS_TOKEN_VALIDATION_SECOND = 1000L * 60 * 10000;
     public final static long REFRESH_TOKEN_VALIDATION_SECOND = 1000L * 60 * 30 * 2;
 
     final static public String ACCESS_TOKEN_NAME = "accessToken";
@@ -58,13 +57,12 @@ public class JwtTokenProvider {
     }
 
     // JWT 토큰 생성
-    public String generateToken(String type, Long userPk, Role roles, String userEmail, long expireTime) {
+    public String generateToken(String type, Long userPk, String userEmail, long expireTime) {
         // TODO setSubject의 역할
         Claims claims = Jwts.claims()
                 .setSubject(type); // JWT payload 에 저장되는 정보단위
         // key , value
         claims.put("userPk", userPk);
-        claims.put("roles", roles);
         claims.put("userEmail", userEmail);
         // TODO claims에 userEmail 넣기
         Date now = new Date();
@@ -79,13 +77,13 @@ public class JwtTokenProvider {
     }
 
     // JWT access 토큰 생성
-    public String createToken(Long userPk, Role roles, String userEmail) {
-        return generateToken("access_token", userPk, roles, userEmail, ACCESS_TOKEN_VALIDATION_SECOND);
+    public String createToken(Long userPk, String userEmail) {
+        return generateToken("access_token", userPk, userEmail, ACCESS_TOKEN_VALIDATION_SECOND);
     }
 
     // JWT refresh 토큰 생성
-    public String createRefreshToken(Long userPk, Role roles, String userEmail) {
-        return generateToken("refresh_token",userPk, roles, userEmail, REFRESH_TOKEN_VALIDATION_SECOND);
+    public String createRefreshToken(Long userPk, String userEmail) {
+        return generateToken("refresh_token",userPk, userEmail, REFRESH_TOKEN_VALIDATION_SECOND);
     }
 
     // JWT 토큰에서 인증 정보 조회
@@ -100,8 +98,8 @@ public class JwtTokenProvider {
     }
 
     // 회원 primary key 가져오기
-    public String getUserPk(String token) {
-        return extractAllClaims(token).get("userPk", String.class);
+    public Long getUserPk(String token) {
+        return extractAllClaims(token).get("userPk", Long.class);
     }
 
     // 회원 이메일 가져오기
