@@ -19,4 +19,5 @@ public class Area {
     @Column(name = "area_id")
     private Long id;
 
+    private String area;
 }
