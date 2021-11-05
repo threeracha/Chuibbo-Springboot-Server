@@ -86,6 +86,12 @@ dependencies {
 	// jy: multipart file
 	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 	compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
+	// json parsing
+	compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
+	// jsoup HTML parser
+	implementation 'org.jsoup:jsoup:1.14.2'
 }
 
 test {
