@@ -33,7 +33,7 @@ public class ResumePhoto {
 
     private String photoUrl;
 
-    private String userId;
+    private Long userId;
 
     @CreatedDate
     private LocalDateTime createdAt;

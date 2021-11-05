@@ -32,9 +32,6 @@ public class Bookmark {
     @CreatedDate
     private LocalDateTime createdAt;
 
-<<<<<<< HEAD
-=======
     @CreatedDate
     private LocalDateTime updatedAt;
->>>>>>> jy-pull-request
 }

@@ -1,14 +1,16 @@
 package com.sriracha.ChuibboServer.controller.user;
 
 import com.sriracha.ChuibboServer.common.Header;
+import com.sriracha.ChuibboServer.model.dto.request.user.SignUpRequestDto;
 import com.sriracha.ChuibboServer.model.dto.response.user.UserResponseDto;
 import com.sriracha.ChuibboServer.service.user.UserService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,9 +20,14 @@ public class UserController {
 
     private final UserService userService;
 
+    @ApiOperation("회원가입")
     @PostMapping("/signup")
-    public Header signup(@RequestBody Map<String, String> user) {
-       return userService.signup(user);
+    public ResponseEntity<?> signup(@RequestBody SignUpRequestDto signUpRequestDto) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(userService.signup(signUpRequestDto));
+        }catch(Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(); // TODO : response 타입 바꾸기
+        }
     }
 
     @GetMapping("/info")
