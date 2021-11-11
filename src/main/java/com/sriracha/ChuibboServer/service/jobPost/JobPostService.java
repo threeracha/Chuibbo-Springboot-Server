@@ -136,6 +136,7 @@ public class JobPostService {
 
     private JobPostResponseDto entityToDto(JobPost jobPost) {
         JobPostResponseDto jobPostResponseDto = JobPostResponseDto.builder()
+                .id(jobPost.getId())
                 .logoUrl(jobPost.getLogoUrl())
                 .companyName(jobPost.getCompanyName())
                 .subject(jobPost.getSubject())

@@ -1,6 +1,7 @@
 package com.sriracha.ChuibboServer.controller.user;
 
 import com.sriracha.ChuibboServer.common.Header;
+import com.sriracha.ChuibboServer.model.entity.User;
 import com.sriracha.ChuibboServer.service.user.login.LoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ public class LoginController {
 
     // 로그인
     @PostMapping("/")
-    public Header<String> login(@RequestBody Map<String, String> user) {
+    public Header<User> login(@RequestBody Map<String, String> user) { // TODO: response 값으로 User 들어가야함
         return loginService.login(user);
     }
 

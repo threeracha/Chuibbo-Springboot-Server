@@ -17,6 +17,8 @@ import java.util.List;
 @Builder
 public class JobPostResponseDto {
 
+    private Long id;
+
     private String logoUrl;
 
     private String companyName;

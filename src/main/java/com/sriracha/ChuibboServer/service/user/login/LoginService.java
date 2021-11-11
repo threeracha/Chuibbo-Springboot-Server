@@ -38,7 +38,7 @@ public class LoginService {
     private GoogleLogin googleLogin;
     private NaverLogin naverLogin;
 
-    public Header<String> login(Map<String, String> user) {
+    public Header<User> login(Map<String, String> user) {
         try {
             User member = userRepository.findByEmail(user.get("email"))
                     .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
@@ -49,7 +49,8 @@ public class LoginService {
             final String refreshJwt = jwtTokenProvider.createRefreshToken(member.getId(), Role.USER, member.getEmail());
             // TODO getUsername() -> email을 반환함 User가 UserDetail를 implement 하지 않는 방법?...
             redisUtil.setDataExpire(refreshJwt, member.getUsername(), JwtTokenProvider.REFRESH_TOKEN_VALIDATION_SECOND);
-            return Header.TOKEN(accessJwt, refreshJwt);
+
+            return Header.TOKENDATA(member, accessJwt, refreshJwt);
         }catch (Exception e){
             log.info("error" + e);
             return Header.ERROR("로그인에 실패하셨습니다");

@@ -77,5 +77,16 @@ public class Header<T> { // Generic
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    public static <T> Header<T> TOKENDATA(T data, String accessToken, String refreshToken) {
+        return(Header<T>)Header.builder()
+                .transactionTime(LocalDateTime.now())
+                .resultCode("DATA OK")
+                .description("DATA OK")
+                .data(data)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
 }
 
