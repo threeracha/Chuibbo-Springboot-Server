@@ -20,4 +20,5 @@ public class Job {
     private Long id;
 
     private String jobType;
+
 }

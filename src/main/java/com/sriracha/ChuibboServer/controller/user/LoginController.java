@@ -1,14 +1,15 @@
 package com.sriracha.ChuibboServer.controller.user;
 
 import com.sriracha.ChuibboServer.common.Header;
-import com.sriracha.ChuibboServer.model.entity.User;
+import com.sriracha.ChuibboServer.model.dto.request.user.SignInRequestDto;
 import com.sriracha.ChuibboServer.service.user.login.LoginService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,8 +21,8 @@ public class LoginController {
 
     // 로그인
     @PostMapping("/")
-    public Header<User> login(@RequestBody Map<String, String> user) { // TODO: response 값으로 User 들어가야함
-        return loginService.login(user);
+    public ResponseEntity<?> login(@RequestBody SignInRequestDto signInRequestDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(loginService.login(signInRequestDto));
     }
 
     @RequestMapping(value = "/kakao", produces = "application/json", method = RequestMethod.GET)

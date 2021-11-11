@@ -2,10 +2,10 @@ package com.sriracha.ChuibboServer.service.user;
 
 import com.sriracha.ChuibboServer.common.Header;
 import com.sriracha.ChuibboServer.common.jwt.JwtTokenProvider;
+import com.sriracha.ChuibboServer.model.dto.request.user.SignUpRequestDto;
 import com.sriracha.ChuibboServer.model.dto.response.user.EmailResponseDto;
 import com.sriracha.ChuibboServer.model.dto.response.user.UserResponseDto;
 import com.sriracha.ChuibboServer.model.entity.User;
-import com.sriracha.ChuibboServer.model.enumclass.Role;
 import com.sriracha.ChuibboServer.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -29,15 +28,12 @@ public class UserService {
     private final StringRedisTemplate redisTemplate;
     private final EmailService emailService;
 
-    public Header signup(Map<String, String> user) {
-        // TODO 아이디 중복 불가처리?
-        userRepository.save(User.builder()
-                .email(user.get("email"))
-                .password(passwordEncoder.encode(user.get("password")))
-                .nickname(user.get("nickname"))
-                .role(Role.USER) // 최초 가입시 USER 로 설정
-                .build()).getId();
-        return Header.OK();
+    public String signup(SignUpRequestDto signUpRequestDto) {
+        if (userRepository.findByEmail(signUpRequestDto.getEmail()).isPresent()) {
+            return null; // TODO : 예외 처리
+        }
+        User user = userRepository.save(signUpRequestDto.toEntity());
+        return "success"; // TODO : signupresponsedto 로 감싸기
     }
 
     // TODO 유효기간 계산해서 Redis에서 삭제하기 -> memory 공간을 쓸데없이 차지하기 때문
