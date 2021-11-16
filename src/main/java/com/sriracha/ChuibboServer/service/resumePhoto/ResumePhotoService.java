@@ -1,13 +1,13 @@
 package com.sriracha.ChuibboServer.service.resumePhoto;
 
 import com.sriracha.ChuibboServer.common.jwt.JwtTokenProvider;
+import com.sriracha.ChuibboServer.model.dto.request.resumePhoto.ResumePhotoRequestDto;
 import com.sriracha.ChuibboServer.model.dto.response.resumePhoto.ResumePhotoResponseDto;
 import com.sriracha.ChuibboServer.model.entity.ResumePhoto;
 import com.sriracha.ChuibboServer.repository.ResumePhotoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,16 +21,21 @@ public class ResumePhotoService {
     private final S3Uploader s3Uploader;
 
     /** 사진 1장 저장 */
-    public ResumePhotoResponseDto save(MultipartFile multipartFile, String token) {
+    public ResumePhotoResponseDto save(ResumePhotoRequestDto resumePhotoRequestDto, String token) {
         try{
-            String imageUrl = s3Uploader.upload(multipartFile, "resumePhoto");
+            String imageUrl = s3Uploader.upload(resumePhotoRequestDto.getMultipartFile(), "resumePhoto");
             ResumePhoto resumePhoto = ResumePhoto.builder()
                     .userId(jwtTokenProvider.getUserPk(token))
                     .photoUrl(imageUrl)
+                    .optionFaceShape(resumePhotoRequestDto.getOptionFaceShape())
+                    .optionHair(resumePhotoRequestDto.getOptionHair())
+                    .optionSuit(resumePhotoRequestDto.getOptionSuit())
                     .build();
             ResumePhoto savedResumePhoto = resumePhotoRepository.save(resumePhoto);
 
-            return ResumePhotoResponseDto.builder().photoUrl(imageUrl).id(savedResumePhoto.getId()).userId(savedResumePhoto.getUserId()).build();
+            return ResumePhotoResponseDto.builder().photoUrl(imageUrl).id(savedResumePhoto.getId()).userId(savedResumePhoto.getUserId())
+                    .optionFaceShape(savedResumePhoto.getOptionFaceShape()).optionHair(savedResumePhoto.getOptionHair()).optionSuit(savedResumePhoto.getOptionSuit())
+                    .build();
         }catch (Exception e){
             log.info("error : " + e);
             // TODO : 예외 처
