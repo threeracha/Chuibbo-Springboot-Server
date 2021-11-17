@@ -1,11 +1,9 @@
 package com.sriracha.ChuibboServer.service.jobPost;
 
+import com.sriracha.ChuibboServer.common.jwt.JwtTokenProvider;
 import com.sriracha.ChuibboServer.model.dto.response.JobPostResponseDto;
 import com.sriracha.ChuibboServer.model.entity.*;
-import com.sriracha.ChuibboServer.repository.AreaRepository;
-import com.sriracha.ChuibboServer.repository.CareerTypeRepository;
-import com.sriracha.ChuibboServer.repository.JobPostRepository;
-import com.sriracha.ChuibboServer.repository.JobRepository;
+import com.sriracha.ChuibboServer.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -35,6 +33,8 @@ public class JobPostService {
     private final AreaRepository areaRepository;
     private final JobRepository jobRepository;
     private final CareerTypeRepository careerTypeRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public ResponseEntity saveJobPosts(String jsonData) throws ParseException, IOException {
 
@@ -120,21 +120,44 @@ public class JobPostService {
         return localDateTime;
     }
 
-    public List<JobPostResponseDto> getJobPosts() {
-        return jobPostRepository.findTop8ByOrderByCreatedAtDesc()
-                .stream().map(jobPost -> entityToDto(jobPost))
-                .collect(Collectors.toList());
+    public List<JobPostResponseDto> getJobPosts(String jwt) {
+        if (jwtTokenProvider.validateToken(jwt)) { // token이 valid하다면
+            User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
+            List<Long> bookmarkJobPostIdList = bookmarkRepository.findAllByUser(user)
+                    .stream().map(bookmark -> bookmark.getJobPost().getId())
+                    .collect(Collectors.toList());
+
+            return jobPostRepository.findTop8ByOrderByCreatedAtDesc()
+                    .stream().map(jobPost -> bookmarkJobPostIdList.contains(jobPost.getId())
+                            ? entityToDto(jobPost, true)
+                            : entityToDto(jobPost, false))
+                    .collect(Collectors.toList());
+        } else // token이 valid하지 않으면
+            return jobPostRepository.findTop8ByOrderByCreatedAtDesc()
+                    .stream().map(jobPost -> entityToDto(jobPost, false))
+                    .collect(Collectors.toList());
     }
 
-    public List<JobPostResponseDto> getAllJobPosts(int page) {
+    public List<JobPostResponseDto> getAllJobPosts(String jwt, int page) {
         Pageable paging = PageRequest.of(page-1, 10);
+        if (jwtTokenProvider.validateToken(jwt)) { // token이 valid하다면
+            User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
+            List<Long> bookmarkJobPostIdList = bookmarkRepository.findAllByUser(user)
+                    .stream().map(bookmark -> bookmark.getJobPost().getId())
+                    .collect(Collectors.toList());
 
-        return jobPostRepository.findAllByOrderByCreatedAtDesc(paging).getContent()
-                .stream().map(jobPost -> entityToDto(jobPost))
-                .collect(Collectors.toList());
+            return jobPostRepository.findAllByOrderByCreatedAtDesc(paging).getContent()
+                    .stream().map(jobPost -> bookmarkJobPostIdList.contains(jobPost.getId())
+                            ? entityToDto(jobPost, true)
+                            : entityToDto(jobPost, false))
+                    .collect(Collectors.toList());
+        } else // token이 valid하지 않으면
+            return jobPostRepository.findAllByOrderByCreatedAtDesc(paging).getContent()
+                    .stream().map(jobPost -> entityToDto(jobPost, false))
+                    .collect(Collectors.toList());
     }
 
-    private JobPostResponseDto entityToDto(JobPost jobPost) {
+    private JobPostResponseDto entityToDto(JobPost jobPost, boolean bookmark) {
         JobPostResponseDto jobPostResponseDto = JobPostResponseDto.builder()
                 .id(jobPost.getId())
                 .logoUrl(jobPost.getLogoUrl())
@@ -146,6 +169,7 @@ public class JobPostService {
                 .areas(jobPost.getAreas())
                 .jobs(jobPost.getJobs())
                 .careerTypes(jobPost.getCareerTypes())
+                .bookmark(bookmark)
                 .build();
 
         return jobPostResponseDto;

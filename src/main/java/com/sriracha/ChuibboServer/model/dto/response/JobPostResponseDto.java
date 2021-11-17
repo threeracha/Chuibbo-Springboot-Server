@@ -37,4 +37,5 @@ public class JobPostResponseDto {
 
     private List<CareerType> careerTypes;
 
+    private boolean bookmark;
 }

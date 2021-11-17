@@ -62,4 +62,9 @@ public class UserController {
 
     @GetMapping("/checkEmail")
     public Header checkEmail(@RequestParam String email) { return userService.checkEmail(email); }
+
+    @GetMapping("/checkValidation")
+    public boolean checkValidation(@RequestHeader("Authorization") String jwt) {
+        return userService.checkValidation(jwt);
+    }
 }
