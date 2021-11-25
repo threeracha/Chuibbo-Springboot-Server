@@ -12,6 +12,8 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -35,6 +37,8 @@ public class JobPostService {
     private final CareerTypeRepository careerTypeRepository;
     private final BookmarkRepository bookmarkRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private final ModelMapper modelMapper;
 
     public ResponseEntity saveJobPosts(String jsonData) throws ParseException, IOException {
 
@@ -129,12 +133,12 @@ public class JobPostService {
 
             return jobPostRepository.findTop8ByOrderByCreatedAtDesc()
                     .stream().map(jobPost -> bookmarkJobPostIdList.contains(jobPost.getId())
-                            ? entityToDto(jobPost, true)
-                            : entityToDto(jobPost, false))
+                            ? addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), true)
+                            : addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), false))
                     .collect(Collectors.toList());
         } else // token이 valid하지 않으면
             return jobPostRepository.findTop8ByOrderByCreatedAtDesc()
-                    .stream().map(jobPost -> entityToDto(jobPost, false))
+                    .stream().map(jobPost -> addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), false))
                     .collect(Collectors.toList());
     }
 
@@ -148,30 +152,17 @@ public class JobPostService {
 
             return jobPostRepository.findAllByOrderByCreatedAtDesc(paging).getContent()
                     .stream().map(jobPost -> bookmarkJobPostIdList.contains(jobPost.getId())
-                            ? entityToDto(jobPost, true)
-                            : entityToDto(jobPost, false))
+                            ? addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), true)
+                            : addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), false))
                     .collect(Collectors.toList());
         } else // token이 valid하지 않으면
             return jobPostRepository.findAllByOrderByCreatedAtDesc(paging).getContent()
-                    .stream().map(jobPost -> entityToDto(jobPost, false))
+                    .stream().map(jobPost -> addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), false))
                     .collect(Collectors.toList());
     }
 
-    private JobPostResponseDto entityToDto(JobPost jobPost, boolean bookmark) {
-        JobPostResponseDto jobPostResponseDto = JobPostResponseDto.builder()
-                .id(jobPost.getId())
-                .logoUrl(jobPost.getLogoUrl())
-                .companyName(jobPost.getCompanyName())
-                .subject(jobPost.getSubject())
-                .descriptionUrl(jobPost.getDescriptionUrl())
-                .startDate(jobPost.getStartDate())
-                .endDate(jobPost.getEndDate())
-                .areas(jobPost.getAreas())
-                .jobs(jobPost.getJobs())
-                .careerTypes(jobPost.getCareerTypes())
-                .bookmark(bookmark)
-                .build();
-
+    public JobPostResponseDto addBookmark(JobPostResponseDto jobPostResponseDto, boolean bookmark) {
+        jobPostResponseDto.setBookmark(bookmark);
         return jobPostResponseDto;
     }
 }

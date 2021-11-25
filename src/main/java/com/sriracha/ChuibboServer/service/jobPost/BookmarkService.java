@@ -9,6 +9,8 @@ import com.sriracha.ChuibboServer.repository.BookmarkRepository;
 import com.sriracha.ChuibboServer.repository.JobPostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,11 +28,13 @@ public class BookmarkService {
     private final JwtTokenProvider jwtTokenProvider;
     private final BookmarkRepository bookmarkRepository;
     private final JobPostRepository jobPostRepository;
+    @Autowired
+    private final ModelMapper modelMapper;
 
     public List<JobPostResponseDto> getBookmarks(String jwt) {
         User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
         List<JobPostResponseDto> bookmarkList = bookmarkRepository.findAllByUser(user)
-                .stream().map(bookmark -> entityToDto(bookmark.getJobPost()))
+                .stream().map(bookmark -> addBookmark(modelMapper.map(bookmark.getJobPost(), JobPostResponseDto.class), true))
                 .collect(Collectors.toList());
 
         // JobPost의 EndDate를 기준(마감순)으로 정렬
@@ -72,20 +76,8 @@ public class BookmarkService {
         }
     }
 
-    private JobPostResponseDto entityToDto(JobPost jobPost) {
-        JobPostResponseDto jobPostResponseDto = JobPostResponseDto.builder()
-                .id(jobPost.getId())
-                .logoUrl(jobPost.getLogoUrl())
-                .companyName(jobPost.getCompanyName())
-                .subject(jobPost.getSubject())
-                .descriptionUrl(jobPost.getDescriptionUrl())
-                .startDate(jobPost.getStartDate())
-                .endDate(jobPost.getEndDate())
-                .areas(jobPost.getAreas())
-                .jobs(jobPost.getJobs())
-                .careerTypes(jobPost.getCareerTypes())
-                .build();
-
+    public JobPostResponseDto addBookmark(JobPostResponseDto jobPostResponseDto, boolean bookmark) {
+        jobPostResponseDto.setBookmark(bookmark);
         return jobPostResponseDto;
     }
 }
