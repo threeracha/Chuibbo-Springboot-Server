@@ -39,13 +39,18 @@ public class JobPostController {
     @ApiOperation(value = "채용공고 저장", notes = "4시간마다 채용공고를 저장한다.")
     public void getOpenApi() throws IOException, ParseException {
 
-        int count = 6;
+        SaraminOpenApi(accessKey, jobPostService);
+
+    }
+
+    public static void SaraminOpenApi(String accessKey, JobPostService jobPostService) throws ParseException, IOException {
+        int count = 110;
 
         StringBuffer response = new StringBuffer();
 
         try {
             String text = URLEncoder.encode("", "UTF-8");
-            String apiURL = "https://oapi.saramin.co.kr/job-search?access-key="+accessKey+"&keyword="+ text+"&count="+ count;
+            String apiURL = "https://oapi.saramin.co.kr/job-search?access-key="+ accessKey +"&keyword="+ text+"&count="+ count;
 
             URL url = new URL(apiURL);
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
@@ -72,7 +77,6 @@ public class JobPostController {
         }
 
         jobPostService.saveJobPosts(response.toString());
-
     }
 
     @GetMapping("")

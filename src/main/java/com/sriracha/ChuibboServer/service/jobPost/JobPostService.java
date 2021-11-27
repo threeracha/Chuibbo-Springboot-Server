@@ -33,7 +33,7 @@ public class JobPostService {
 
     private final JobPostRepository jobPostRepository;
     private final AreaRepository areaRepository;
-    private final JobRepository jobRepository;
+    private final JobTypeRepository jobTypeRepository;
     private final CareerTypeRepository careerTypeRepository;
     private final BookmarkRepository bookmarkRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -87,7 +87,7 @@ public class JobPostService {
                 }
 
                 for (String list: jobCodeList) {
-                    jobs.add(jobRepository.findById(Long.parseLong(list)).get());
+                    jobs.add(jobTypeRepository.findById(Long.parseLong(list)).get());
                 }
 
                 for (String list: careerTypeCodeList) {
