@@ -17,4 +17,10 @@ public class ResumePhotoResponseDto {
 
     private Long userId;
 
+    private String optionFaceShape;
+
+    private String optionHair;
+
+    private String optionSuit;
+
 }

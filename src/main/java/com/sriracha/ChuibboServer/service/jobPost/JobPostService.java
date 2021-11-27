@@ -1,11 +1,9 @@
 package com.sriracha.ChuibboServer.service.jobPost;
 
+import com.sriracha.ChuibboServer.common.jwt.JwtTokenProvider;
 import com.sriracha.ChuibboServer.model.dto.response.JobPostResponseDto;
 import com.sriracha.ChuibboServer.model.entity.*;
-import com.sriracha.ChuibboServer.repository.AreaRepository;
-import com.sriracha.ChuibboServer.repository.CareerTypeRepository;
-import com.sriracha.ChuibboServer.repository.JobPostRepository;
-import com.sriracha.ChuibboServer.repository.JobRepository;
+import com.sriracha.ChuibboServer.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -14,6 +12,10 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,10 @@ public class JobPostService {
     private final AreaRepository areaRepository;
     private final JobRepository jobRepository;
     private final CareerTypeRepository careerTypeRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private final ModelMapper modelMapper;
 
     public ResponseEntity saveJobPosts(String jsonData) throws ParseException, IOException {
 
@@ -118,23 +124,45 @@ public class JobPostService {
         return localDateTime;
     }
 
-    public List<JobPostResponseDto> getJobPosts() {
-        return jobPostRepository.findAll().stream().map(jobPost -> entityToDto(jobPost)).collect(Collectors.toList());
+    public List<JobPostResponseDto> getJobPosts(String jwt) {
+        if (jwtTokenProvider.validateToken(jwt)) { // token이 valid하다면
+            User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
+            List<Long> bookmarkJobPostIdList = bookmarkRepository.findAllByUser(user)
+                    .stream().map(bookmark -> bookmark.getJobPost().getId())
+                    .collect(Collectors.toList());
+
+            return jobPostRepository.findTop8ByOrderByCreatedAtDesc()
+                    .stream().map(jobPost -> bookmarkJobPostIdList.contains(jobPost.getId())
+                            ? addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), true)
+                            : addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), false))
+                    .collect(Collectors.toList());
+        } else // token이 valid하지 않으면
+            return jobPostRepository.findTop8ByOrderByCreatedAtDesc()
+                    .stream().map(jobPost -> addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), false))
+                    .collect(Collectors.toList());
     }
 
-    private JobPostResponseDto entityToDto(JobPost jobPost) {
-        JobPostResponseDto jobPostResponseDto = JobPostResponseDto.builder()
-                .logoUrl(jobPost.getLogoUrl())
-                .companyName(jobPost.getCompanyName())
-                .subject(jobPost.getSubject())
-                .descriptionUrl(jobPost.getDescriptionUrl())
-                .startDate(jobPost.getStartDate())
-                .endDate(jobPost.getEndDate())
-                .areas(jobPost.getAreas())
-                .jobs(jobPost.getJobs())
-                .careerTypes(jobPost.getCareerTypes())
-                .build();
+    public List<JobPostResponseDto> getAllJobPosts(String jwt, int page) {
+        Pageable paging = PageRequest.of(page-1, 10);
+        if (jwtTokenProvider.validateToken(jwt)) { // token이 valid하다면
+            User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
+            List<Long> bookmarkJobPostIdList = bookmarkRepository.findAllByUser(user)
+                    .stream().map(bookmark -> bookmark.getJobPost().getId())
+                    .collect(Collectors.toList());
 
+            return jobPostRepository.findAllByOrderByCreatedAtDesc(paging).getContent()
+                    .stream().map(jobPost -> bookmarkJobPostIdList.contains(jobPost.getId())
+                            ? addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), true)
+                            : addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), false))
+                    .collect(Collectors.toList());
+        } else // token이 valid하지 않으면
+            return jobPostRepository.findAllByOrderByCreatedAtDesc(paging).getContent()
+                    .stream().map(jobPost -> addBookmark(modelMapper.map(jobPost, JobPostResponseDto.class), false))
+                    .collect(Collectors.toList());
+    }
+
+    public JobPostResponseDto addBookmark(JobPostResponseDto jobPostResponseDto, boolean bookmark) {
+        jobPostResponseDto.setBookmark(bookmark);
         return jobPostResponseDto;
     }
 }

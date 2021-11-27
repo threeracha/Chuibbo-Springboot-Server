@@ -38,4 +38,10 @@ public class ResumePhoto {
     @CreatedDate
     private LocalDateTime createdAt;
 
+    private String optionFaceShape;
+
+    private String optionHair;
+
+    private String optionSuit;
+
 }

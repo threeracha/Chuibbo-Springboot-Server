@@ -4,16 +4,16 @@ import com.sriracha.ChuibboServer.common.responseEntity.StatusEnum;
 import com.sriracha.ChuibboServer.common.responseEntity.Message;
 import com.sriracha.ChuibboServer.model.dto.response.JobPostResponseDto;
 import com.sriracha.ChuibboServer.service.jobPost.JobPostService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.parser.ParseException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,9 +32,13 @@ public class JobPostController {
 
     private final JobPostService jobPostService;
 
+    @Value("${saramin.access-key}")
+    private String accessKey;
+
     @GetMapping("/oapi")
+    @ApiOperation(value = "채용공고 저장", notes = "4시간마다 채용공고를 저장한다.")
     public void getOpenApi() throws IOException, ParseException {
-        String accessKey = "";
+
         int count = 6;
 
         StringBuffer response = new StringBuffer();
@@ -71,12 +75,30 @@ public class JobPostController {
 
     }
 
-    @GetMapping("") // TODO: 홈에는 특정 기준에 따라 일부 jobPosts만 get하도록
-    public ResponseEntity<Message<List<JobPostResponseDto>>> getJobPosts() {
+    @GetMapping("")
+    @ApiOperation(value = "채용공고 홈 조회", notes = "최신 8개의 채용공고를 조회한다.")
+    public ResponseEntity<Message<List<JobPostResponseDto>>> getJobPosts(@RequestHeader("Authorization") String jwt) {
 
-        List<JobPostResponseDto> jobPostResponseDtos = jobPostService.getJobPosts();
+        List<JobPostResponseDto> jobPostResponseDtos = jobPostService.getJobPosts(jwt);
 
-        HttpHeaders headers= new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
+
+        Message message = new Message();
+        message.setStatus(StatusEnum.OK);
+        message.setMessage("OK");
+        message.setData(jobPostResponseDtos);
+
+        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/more")
+    @ApiOperation(value = "채용공고 더보기 조회", notes = "전체 채용공고를 페이지별 조회한다.")
+    public ResponseEntity<Message<List<JobPostResponseDto>>> getAllJobPosts(@RequestHeader("Authorization") String jwt, @RequestParam int page) {
+
+        List<JobPostResponseDto> jobPostResponseDtos = jobPostService.getAllJobPosts(jwt, page);
+
+        HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
 
         Message message = new Message();

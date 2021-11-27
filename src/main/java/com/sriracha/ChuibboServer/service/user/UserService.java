@@ -100,6 +100,10 @@ public class UserService {
                 .map(member -> Header.ERROR("이미 존재하는 아이디 입니다.")).orElseGet(() -> Header.OK("아이디를 사용할 수 있습니다."));
     }
 
+    public boolean checkValidation(String jwt) {
+        return jwtTokenProvider.validateToken(jwt);
+    }
+
     private Header<UserResponseDto> response(User user) {
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .id(user.getId())

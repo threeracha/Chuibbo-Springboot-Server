@@ -17,6 +17,8 @@ import java.util.List;
 @Builder
 public class JobPostResponseDto {
 
+    private Long id;
+
     private String logoUrl;
 
     private String companyName;
@@ -35,4 +37,5 @@ public class JobPostResponseDto {
 
     private List<CareerType> careerTypes;
 
+    private boolean bookmark;
 }
