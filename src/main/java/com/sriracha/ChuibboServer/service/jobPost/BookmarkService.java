@@ -10,7 +10,6 @@ import com.sriracha.ChuibboServer.repository.JobPostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,52 +27,63 @@ public class BookmarkService {
     private final JwtTokenProvider jwtTokenProvider;
     private final BookmarkRepository bookmarkRepository;
     private final JobPostRepository jobPostRepository;
-    @Autowired
     private final ModelMapper modelMapper;
 
     public List<JobPostResponseDto> getBookmarks(String jwt) {
         User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
-        List<JobPostResponseDto> bookmarkList = bookmarkRepository.findAllByUser(user)
-                .stream().map(bookmark -> addBookmark(modelMapper.map(bookmark.getJobPost(), JobPostResponseDto.class), true))
-                .collect(Collectors.toList());
 
-        // JobPost의 EndDate를 기준(마감순)으로 정렬
-        Collections.sort(bookmarkList, new Comparator<JobPostResponseDto>() {
-            @Override
-            public int compare(JobPostResponseDto b1, JobPostResponseDto b2) {
-                return b1.getEndDate().compareTo(b2.getEndDate());
+        if (user != null) {
+            List<JobPostResponseDto> bookmarkList = bookmarkRepository.findAllByUser(user)
+                    .stream().map(bookmark -> addBookmark(modelMapper.map(bookmark.getJobPost(), JobPostResponseDto.class), true))
+                    .collect(Collectors.toList());
+
+
+            // JobPost의 EndDate를 기준(마감순)으로 정렬
+            Collections.sort(bookmarkList, new Comparator<JobPostResponseDto>() {
+                @Override
+                public int compare(JobPostResponseDto b1, JobPostResponseDto b2) {
+                    return b1.getEndDate().compareTo(b2.getEndDate());
+                }
+            });
+
+            return bookmarkList;
+        } else
+            return null;
+    }
+
+    public JobPostResponseDto saveBookmark(String jwt, Long jobPostId) {
+        User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
+        Optional<JobPost> jobPost = jobPostRepository.findById(jobPostId);
+
+        if (user != null && jobPost.isPresent()) {
+            if (bookmarkRepository.findByUserAndJobPost(user, jobPost.get()).isEmpty()) {
+                Bookmark bookmark = Bookmark.builder()
+                        .user(user)
+                        .jobPost(jobPost.get())
+                        .createdAt(LocalDateTime.now())
+                        .build();
+
+                bookmarkRepository.save(bookmark);
+
+                return modelMapper.map(bookmark, JobPostResponseDto.class);
             }
-        });
+        }
 
-        return bookmarkList;
+        return null;
     }
 
-    public void saveBookmark(String jwt, Long jobPostId) {
+    public Long deleteBookmark(String jwt, Long jobPostId) {
         User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
         Optional<JobPost> jobPost = jobPostRepository.findById(jobPostId);
 
-        if (bookmarkRepository.findByUserAndJobPost(user, jobPost.get()).isPresent()) {
-            // TODO: 예외
-        } else {
-            Bookmark bookmark = Bookmark.builder()
-                    .user(user)
-                    .jobPost(jobPost.get())
-                    .createdAt(LocalDateTime.now())
-                    .build();
-
-            bookmarkRepository.save(bookmark);
+        if (user != null && jobPost.isPresent()) {
+            if (bookmarkRepository.findByUserAndJobPost(user, jobPost.get()).isPresent()) {
+                bookmarkRepository.deleteByUserAndJobPost(user, jobPost.get());
+                return jobPostId;
+            }
         }
-    }
 
-    public void deleteBookmark(String jwt, Long jobPostId) {
-        User user = (User) jwtTokenProvider.getAuthentication(jwt).getPrincipal();
-        Optional<JobPost> jobPost = jobPostRepository.findById(jobPostId);
-
-        if (bookmarkRepository.findByUserAndJobPost(user, jobPost.get()).isPresent()) {
-            bookmarkRepository.deleteByUserAndJobPost(user, jobPost.get());
-        } else {
-            // TODO: 예외
-        }
+        return null;
     }
 
     public JobPostResponseDto addBookmark(JobPostResponseDto jobPostResponseDto, boolean bookmark) {

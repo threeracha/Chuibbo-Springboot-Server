@@ -1,20 +1,17 @@
 package com.sriracha.ChuibboServer.controller.jobPost;
 
-import com.sriracha.ChuibboServer.common.responseEntity.Message;
+import com.sriracha.ChuibboServer.common.responseEntity.ResponseData;
+import com.sriracha.ChuibboServer.common.responseEntity.ResponseError;
 import com.sriracha.ChuibboServer.common.responseEntity.StatusEnum;
 import com.sriracha.ChuibboServer.model.dto.response.JobPostResponseDto;
-import com.sriracha.ChuibboServer.model.entity.Bookmark;
 import com.sriracha.ChuibboServer.service.jobPost.BookmarkService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 @Slf4j
@@ -27,47 +24,66 @@ public class BookmarkController {
 
     @ApiOperation(value = "채용공고 북마크 조회", notes = "관심있는 채용공고 북마크 조회")
     @GetMapping("/bookmarks")
-    public ResponseEntity<Message<List<JobPostResponseDto>>> getBookmarks(@RequestHeader("Authorization") String jwt) {
-        List<JobPostResponseDto> bookmarks = bookmarkService.getBookmarks(jwt);
+    public ResponseEntity getBookmarks(@RequestHeader("Authorization") String jwt) {
 
-        HttpHeaders headers= new HttpHeaders(); // TODO: header 중복 코드 처리
-        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
+        List<JobPostResponseDto> bookmarkList = bookmarkService.getBookmarks(jwt);
 
-        Message message = new Message();
-        message.setStatus(StatusEnum.OK);
-        message.setMessage("OK");
-        message.setData(bookmarks);
+        if (bookmarkList == null) {
+            ResponseError responseError = ResponseError.builder()
+                    .status(StatusEnum.NOT_FOUND)
+                    .message("user가 null")
+                    .build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseError);
+        }
 
-        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+        ResponseData responseData = ResponseData.builder()
+                .data(bookmarkList)
+                .build();
+
+        return ResponseEntity.ok()
+                .body(responseData);
     }
 
     @ApiOperation(value = "채용공고 북마크 저장", notes = "관심있는 채용공고 북마크 저장")
     @PostMapping("/{jobPostId}/bookmark")
     public ResponseEntity saveBookmark(@RequestHeader("Authorization") String jwt, @PathVariable Long jobPostId) {
-        bookmarkService.saveBookmark(jwt, jobPostId);
 
-        HttpHeaders headers= new HttpHeaders(); // TODO: header 중복 코드 처리
-        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
+        JobPostResponseDto jobPostResponseDto = bookmarkService.saveBookmark(jwt, jobPostId);
 
-        Message message = new Message();
-        message.setStatus(StatusEnum.OK);
-        message.setMessage("OK");
+        if (jobPostResponseDto == null) {
+            ResponseError responseError = ResponseError.builder()
+                    .status(StatusEnum.NOT_FOUND)
+                    .message("null")
+                    .build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseError);
+        }
 
-        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+        ResponseData responseData = ResponseData.builder()
+                .data(jobPostResponseDto)
+                .build();
+
+        return ResponseEntity.ok()
+                .body(responseData);
     }
 
     @ApiOperation(value = "채용공고 북마크 삭제", notes = "관심있는 채용공고 북마크 삭제")
     @DeleteMapping("/{jobPostId}/bookmark")
     public ResponseEntity deleteBookmark(@RequestHeader("Authorization") String jwt, @PathVariable Long jobPostId) {
-        bookmarkService.deleteBookmark(jwt, jobPostId);
+        Long id = bookmarkService.deleteBookmark(jwt, jobPostId);
 
-        HttpHeaders headers= new HttpHeaders(); // TODO: header 중복 코드 처리
-        headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
+        if (id == null) {
+            ResponseError responseError = ResponseError.builder()
+                    .status(StatusEnum.NOT_FOUND)
+                    .message("null")
+                    .build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseError);
+        }
 
-        Message message = new Message();
-        message.setStatus(StatusEnum.OK);
-        message.setMessage("OK");
+        ResponseData responseData = ResponseData.builder()
+                .data(id)
+                .build();
 
-        return new ResponseEntity<>(message, headers, HttpStatus.OK);
+        return ResponseEntity.ok()
+                .body(responseData);
     }
 }

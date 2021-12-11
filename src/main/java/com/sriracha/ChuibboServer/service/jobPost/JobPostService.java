@@ -37,10 +37,9 @@ public class JobPostService {
     private final CareerTypeRepository careerTypeRepository;
     private final BookmarkRepository bookmarkRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    @Autowired
     private final ModelMapper modelMapper;
 
-    public ResponseEntity saveJobPosts(String jsonData) throws ParseException, IOException {
+    public void saveJobPosts(String jsonData) throws ParseException, IOException {
 
         JSONObject jsonObject, position, jobMidCode, location, experienceLevel, company, detail;
 
@@ -110,8 +109,6 @@ public class JobPostService {
                 jobPostRepository.save(jobPost);
             }
         }
-
-        return ResponseEntity.ok(HttpStatus.OK); // TODO
     }
 
     public LocalDateTime getTimestampToDate(String timestampStr) {
