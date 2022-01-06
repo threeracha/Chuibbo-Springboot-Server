@@ -17,7 +17,7 @@ public class BatchScheduler {
     private final Job job;
     private final JobLauncher jobLauncher;
 
-    @Scheduled(fixedDelay = 10  * 1000L) // 10분 마다 실행
+    @Scheduled(fixedDelay = 10 * 60 * 1000L) // 10분 마다 실행
     public void executeJob () {
         try {
             jobLauncher.run(
