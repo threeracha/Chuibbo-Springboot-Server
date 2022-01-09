@@ -7,8 +7,6 @@ public final class Constants {
     public static final Integer INTERVAL_IN_MILLISECONDE = 180_000;
     public static final String MODIFICATION_DATE = "modificationDate";
 
-    public static final String SEARCH_QUERY = "/query";
-    public static final String QUERY = "query";
     public static final String HITS = "hits";
     public static final String TOOK = "took";
     public static final String TOTAL_HITS = "total";
