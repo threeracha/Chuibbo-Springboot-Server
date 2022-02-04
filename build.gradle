@@ -1,0 +1,105 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.3'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+}
+
+group = 'com.sriracha'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext.profile = (!project.hasProperty('profile') || !profile) ? 'local' : profile
+
+sourceSets {
+	main {
+		resources {
+			srcDirs("src/main/resources", "src/main/resources/profiles")
+		}
+		java {
+			exclude 'com/sriracha/ChuibboServer/common/config/AmazonS3Config.java'
+			exclude 'com/sriracha/ChuibboServer/service/resumePhoto/S3Uploader.java'
+			exclude 'com/sriracha/ChuibboServer/service/resumePhoto/ResumePhotoService.java'
+			exclude 'com/sriracha/ChuibboServer/controller/resumePhoto/ResumePhotoApiController.java'
+			exclude 'com/'
+		}
+	}
+}
+
+bootRun {
+	String activeProfile = System.properties['spring.profiles.active']
+	println "zone: $activeProfile"
+	systemProperty "spring.profiles.active", activeProfile
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+//    implementation 'junit:junit:4.12'
+	implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// jy: jpa 설정
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// jy: mysql 설정
+	compile 'mysql:mysql-connector-java'
+
+	// jy: spring security
+	compile('org.springframework.boot:spring-boot-starter-oauth2-client')
+
+	compile('org.springframework.boot:spring-boot-starter-security')
+
+	compile 'io.jsonwebtoken:jjwt-api:0.11.2'
+	runtime 'io.jsonwebtoken:jjwt-impl:0.11.2',
+			// Uncomment the next line if you want to use RSASSA-PSS (PS256, PS384, PS512) algorithms:
+			//'org.bouncycastle:bcprov-jdk15on:1.60',
+			'io.jsonwebtoken:jjwt-jackson:0.11.2' // or 'io.jsonwebtoken:jjwt-gson:0.11.2' for gson
+
+
+	implementation 'com.google.code.gson:gson:2.8.6'
+
+	// jy: Redis 설정
+	compile 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// jy: password 찾기 이메일 전송
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// jy: API 문서 자동화
+	implementation 'io.springfox:springfox-swagger2:2.9.2'
+	implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+
+	// jy: AmazonS3
+//	compile 'org.springframework.cloud:spring-cloud-starter-aws:2.0.1.RELEASE'
+
+	// jy: multipart file
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+	compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
+	// json parsing
+	compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+
+	// jsoup HTML parser
+	implementation 'org.jsoup:jsoup:1.14.2'
+
+	compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.5'
+
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	implementation 'org.springframework.boot:spring-boot-starter-quartz'
+	testImplementation 'org.springframework.batch:spring-batch-test'
+}
+
+test {
+	useJUnitPlatform()
+}
