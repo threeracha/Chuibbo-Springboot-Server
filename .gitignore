@@ -33,10 +33,6 @@ out/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
-.vscode/
-
 ### 설정 파일
 src/main/resources/profiles
 src/main/resources/application*
-

@@ -12,7 +12,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -38,29 +37,20 @@ public class JobPost {
 
     private String descriptionUrl;
 
+    @OneToMany(mappedBy = "jobPost")
+    private List<JobPostHasArea> jobPostHasAreas;
+
+    @OneToMany(mappedBy = "jobPost")
+    private List<JobPostHasJob> jobPostHasJobs;
+
+    @OneToMany(mappedBy = "jobPost")
+    private List<JobPostHasCareerType> jobPostHasCareerTypes;
+
     @Column(name = "startdate")
     private LocalDateTime startDate;
 
     @Column(name = "enddate")
     private LocalDateTime endDate;
-
-    @ManyToMany
-    @JoinTable(name = "job_post_has_area",
-            joinColumns = @JoinColumn(name="job_post_id"),
-            inverseJoinColumns = @JoinColumn(name = "area_id"))
-    private List<Area> areas = new ArrayList<Area>();
-
-    @ManyToMany
-    @JoinTable(name = "job_post_has_job",
-            joinColumns = @JoinColumn(name="job_post_id"),
-            inverseJoinColumns = @JoinColumn(name = "job_id"))
-    private List<Job> jobs = new ArrayList<Job>();
-
-    @ManyToMany
-    @JoinTable(name = "job_post_has_career_type",
-            joinColumns = @JoinColumn(name="job_post_id"),
-            inverseJoinColumns = @JoinColumn(name = "career_type_id"))
-    private List<CareerType> careerTypes = new ArrayList<CareerType>();
 
     @CreatedDate
     private LocalDateTime createdAt;
