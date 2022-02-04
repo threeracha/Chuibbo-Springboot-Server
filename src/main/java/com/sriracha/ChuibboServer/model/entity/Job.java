@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -20,5 +21,8 @@ public class Job {
     private Long id;
 
     private String jobType;
+
+    @OneToMany(mappedBy = "job")
+    private List<JobPostHasJob> jobPostHasJobs;
 
 }

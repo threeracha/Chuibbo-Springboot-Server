@@ -1,8 +1,12 @@
 package com.sriracha.ChuibboServer.model.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -17,4 +21,7 @@ public class Area {
     private Long id;
 
     private String area;
+
+    @OneToMany(mappedBy = "area")
+    private List<JobPostHasArea> jobPostHasAreas;
 }
