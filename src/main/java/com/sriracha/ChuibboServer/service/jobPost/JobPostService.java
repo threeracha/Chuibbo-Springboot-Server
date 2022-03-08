@@ -73,7 +73,8 @@ public class JobPostService {
                 }
 
                 // 여러개일 경우, ,(콤마)로 split
-                String[] areaCodeList = location.get("code").toString().split(",");
+                // TODO: 없을 경우, 예외
+                String[] areaCodeList = location.get("code").toString().split(","); // TODO: 해외인 경우,
                 String[] jobCodeList = jobMidCode.get("code").toString().split(",");
                 String[] careerTypeCodeList = experienceLevel.get("code").toString().split(",");
 

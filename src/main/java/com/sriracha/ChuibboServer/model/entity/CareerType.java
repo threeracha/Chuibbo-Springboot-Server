@@ -19,5 +19,5 @@ public class CareerType {
     @Column(name = "career_type_id")
     private Long id;
 
-    private String career_type;
+    private String careerType;
 }

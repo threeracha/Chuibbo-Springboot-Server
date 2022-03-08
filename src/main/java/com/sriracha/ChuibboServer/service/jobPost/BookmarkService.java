@@ -65,7 +65,7 @@ public class BookmarkService {
 
                 bookmarkRepository.save(bookmark);
 
-                return modelMapper.map(bookmark, JobPostResponseDto.class);
+                return modelMapper.map(bookmark.getJobPost(), JobPostResponseDto.class);
             }
         }
 
