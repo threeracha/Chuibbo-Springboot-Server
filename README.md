@@ -1,6 +1,6 @@
 # 취뽀 - GAN 모델 기반 취업 사진 생성 어플리케이션
 
-### 서비스 소개
+## 서비스 소개
 * 주제 : 비싼 취업 사진은 그만! 언제 어디서나 무료 취업 사진을 찍을 수 있도록 딥러닝 기술을 활용한 취업 사진 생성 어플리케이션
 * 핵심 기능 :
     * 취업 사진 느낌의 호감형 분위기 합성
@@ -10,11 +10,11 @@
     * 최신 채용 공고 제공
     * 채용 공고 검색 및 일정 관리
 
-### 서비스 구성도
-![구성도](https://user-images.githubusercontent.com/43838022/144739637-e90b2858-4081-49a2-b48a-b3dbee38148e.png)
+## 서비스 구성도
+![Chuibbo 구성도](https://user-images.githubusercontent.com/43838022/158014139-1419681d-9f52-45ea-a656-37ae47792b7d.png)
 
-### ERD
+## ERD
 ![erd](https://user-images.githubusercontent.com/43838022/144740040-5e03da9d-e5a9-414f-b5eb-d29b58796b6f.png)
 
-### API
+## API
 ![Chuibbo Swagger UI](https://user-images.githubusercontent.com/43838022/158008340-046174d7-4aa1-4f23-81d5-a2d1a884e5de.png)
