@@ -10,6 +10,15 @@
     * 최신 채용 공고 제공
     * 채용 공고 검색 및 일정 관리
 
+## 기술 스택
+- Java 11
+- Spring Boot 2.4.3
+- Spring Data JPA
+- Gradle
+- MySQL
+- Redis
+- ElasticSearch
+
 ## 서비스 구성도
 ![Chuibbo 구성도](https://user-images.githubusercontent.com/43838022/158014139-1419681d-9f52-45ea-a656-37ae47792b7d.png)
 
