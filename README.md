@@ -26,4 +26,4 @@
 ![erd](https://user-images.githubusercontent.com/43838022/144740040-5e03da9d-e5a9-414f-b5eb-d29b58796b6f.png)
 
 ## API
-![Chuibbo Swagger UI](https://user-images.githubusercontent.com/43838022/158008340-046174d7-4aa1-4f23-81d5-a2d1a884e5de.png)
+![Chuibbo Swagger UI](https://user-images.githubusercontent.com/43838022/159551678-61e97c6c-01a0-47d0-999b-ba2f5bdf844e.png)
