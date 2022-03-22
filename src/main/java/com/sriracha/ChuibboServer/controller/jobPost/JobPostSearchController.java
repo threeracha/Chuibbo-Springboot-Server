@@ -4,6 +4,7 @@ import com.sriracha.ChuibboServer.common.responseEntity.ResponseData;
 import com.sriracha.ChuibboServer.model.dto.response.JobPostResponseDto;
 import com.sriracha.ChuibboServer.service.jobPost.ISearchService;
 import com.sriracha.ChuibboServer.service.jobPost.ResultQuery;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +16,13 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/job_posts/search")
+@RequestMapping("/api/v1/job-posts/search")
 public class JobPostSearchController {
 
     private final ISearchService searchService;
 
-    @GetMapping("/query")
+    @ApiOperation("채용공고 검색")
+    @GetMapping("")
     public ResponseEntity searchQuery(@RequestHeader("Authorization") String jwt, @RequestParam String query) throws IOException {
 
         ResultQuery resultQuery = searchService.searchFromQuery(query.trim().toLowerCase());

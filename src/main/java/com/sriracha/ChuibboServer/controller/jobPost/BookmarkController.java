@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/job_post")
+@RequestMapping("/api/v1/job-posts")
 public class BookmarkController {
 
     private final BookmarkService bookmarkService;
@@ -45,7 +45,7 @@ public class BookmarkController {
     }
 
     @ApiOperation(value = "채용공고 북마크 저장", notes = "관심있는 채용공고 북마크 저장")
-    @PostMapping("/{jobPostId}/bookmark")
+    @PostMapping("/{jobPostId}/bookmarks")
     public ResponseEntity saveBookmark(@RequestHeader("Authorization") String jwt, @PathVariable Long jobPostId) {
 
         JobPostResponseDto jobPostResponseDto = bookmarkService.saveBookmark(jwt, jobPostId);
@@ -67,7 +67,7 @@ public class BookmarkController {
     }
 
     @ApiOperation(value = "채용공고 북마크 삭제", notes = "관심있는 채용공고 북마크 삭제")
-    @DeleteMapping("/{jobPostId}/bookmark")
+    @DeleteMapping("/{jobPostId}/bookmarks")
     public ResponseEntity deleteBookmark(@RequestHeader("Authorization") String jwt, @PathVariable Long jobPostId) {
         Long id = bookmarkService.deleteBookmark(jwt, jobPostId);
 
