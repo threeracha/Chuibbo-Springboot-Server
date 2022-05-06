@@ -45,7 +45,7 @@ public class JobPostController {
 
     }
 
-    public static void SaraminOpenApi(String accessKey, JobPostService jobPostService) throws ParseException, IOException {
+    public static void SaraminOpenApi(String accessKey, JobPostService jobPostService) throws IOException {
         int count = 110;
 
         StringBuffer response = new StringBuffer();

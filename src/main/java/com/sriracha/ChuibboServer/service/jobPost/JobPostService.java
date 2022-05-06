@@ -1,26 +1,22 @@
 package com.sriracha.ChuibboServer.service.jobPost;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sriracha.ChuibboServer.common.jwt.JwtTokenProvider;
+import com.sriracha.ChuibboServer.model.dto.OpenApiJobPost;
 import com.sriracha.ChuibboServer.model.dto.response.JobPostResponseDto;
 import com.sriracha.ChuibboServer.model.entity.*;
 import com.sriracha.ChuibboServer.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -39,76 +35,65 @@ public class JobPostService {
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper;
 
-    public void saveJobPosts(String jsonData) throws ParseException, IOException {
+    public void saveJobPosts(String jsonData) {
 
-        JSONObject jsonObject, position, jobMidCode, location, experienceLevel, company, detail;
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObj = (JSONObject) jsonParser.parse(jsonData);
-        JSONObject parseJobs = (JSONObject) jsonObj.get("jobs");
-        JSONArray array = (JSONArray) parseJobs.get("job");
+        try {
+            OpenApiJobPost openApiJobPost = objectMapper.readValue(jsonData, OpenApiJobPost.class);
+            int size = openApiJobPost.getJobs().getJob().size();
 
-        // TODO: 쿼리가 너무 많음
+            // TODO: 쿼리가 너무 많음
 
-        // DB에 있는지 확인하고, 없으면 DB에 저장
-        for (int i = 0; i < array.size(); i++) {
-            jsonObject = (JSONObject) array.get(i);
+            // DB에 있는지 확인하고, 없으면 DB에 저장
+            for (int i = 0; i < size; i++) {
+                OpenApiJobPost.Jobs.Job job = openApiJobPost.getJobs().getJob().get(i);
+                if (jobPostRepository.findByOpenApiJobPostId(job.getId()).isEmpty()) {
+                    String imageSource = "";
 
-            if (jobPostRepository.findByOpenApiJobPostId(Long.parseLong(jsonObject.get("id").toString())).isEmpty()) {
-                position = (JSONObject) jsonObject.get("position");
-                jobMidCode = (JSONObject) position.get("job-mid-code");
-                location = (JSONObject) position.get("location");
-                experienceLevel = (JSONObject) position.get("experience-level");
-                company = (JSONObject) jsonObject.get("company");
-                detail = (JSONObject) company.get("detail");
+                    // 회사 logo 이미지 불러오기
+                    if (!job.getCompany().getDetail().getHref().isEmpty()) {
+                        String url = job.getCompany().getDetail().getHref();
+                        Document doc = Jsoup.connect(url).ignoreHttpErrors(true).get();
+                        if (!doc.getElementsByClass("inner_thumb").isEmpty())
+                            imageSource = doc.select(".inner_thumb img").attr("src");
+                    }
 
-                String imageSource = "";
+                    // 여러개일 경우, ,(콤마)로 split
+                    List<Area> areas = new ArrayList<>();
+                    List<Job> jobs = new ArrayList<>();
+                    List<CareerType> careerTypes = new ArrayList<>();
+                    if (job.getPosition().getLocation().getCode() != null)
+                        for (String list: job.getPosition().getLocation().getCode().split(",")) // TODO: 해외인 경우,
+                            areas.add(areaRepository.findById(Long.parseLong(list)).get());
+                    if (job.getPosition().getJobMidCode().getCode() != null)
+                        for (String list: job.getPosition().getJobMidCode().getCode().split(","))
+                            jobs.add(jobTypeRepository.findById(Long.parseLong(list)).get());
+                    if (job.getPosition().getExperienceLevel().getCode() != null)
+                        for (String list: job.getPosition().getExperienceLevel().getCode().split(","))
+                            careerTypes.add(careerTypeRepository.findById(Long.parseLong(list)).get());
 
-                // 회사 logo 이미지 불러오기
-                if (!detail.get("href").toString().isEmpty()) {
-                    String url = detail.get("href").toString();
-                    Document doc = Jsoup.connect(url).ignoreHttpErrors(true).get();
-                    if (!doc.getElementsByClass("inner_thumb").isEmpty())
-                        imageSource = doc.select(".inner_thumb img").attr("src");
+                    JobPost jobPost = JobPost.builder()
+                            .openApiJobPostId(job.getId())
+                            .logoUrl(imageSource)
+                            .companyName(job.getCompany().getDetail().getName())
+                            .subject(job.getPosition().getTitle())
+                            .descriptionUrl(job.getUrl())
+                            .startDate(getTimestampToDate(job.getOpeningTimestamp()))
+                            .endDate(getTimestampToDate(job.getExpirationTimestamp()))
+                            .areas(areas)
+                            .jobs(jobs)
+                            .careerTypes(careerTypes)
+                            .build();
+
+                    jobPostRepository.save(jobPost);
                 }
-
-                // 여러개일 경우, ,(콤마)로 split
-                // TODO: 없을 경우, 예외
-                String[] areaCodeList = location.get("code").toString().split(","); // TODO: 해외인 경우,
-                String[] jobCodeList = jobMidCode.get("code").toString().split(",");
-                String[] careerTypeCodeList = experienceLevel.get("code").toString().split(",");
-
-                List<Area> areas = new ArrayList<>();
-                List<Job> jobs = new ArrayList<>();
-                List<CareerType> careerTypes = new ArrayList<>();
-
-                for (String list: areaCodeList) {
-                    areas.add(areaRepository.findById(Long.parseLong(list)).get());
-                }
-
-                for (String list: jobCodeList) {
-                    jobs.add(jobTypeRepository.findById(Long.parseLong(list)).get());
-                }
-
-                for (String list: careerTypeCodeList) {
-                    careerTypes.add(careerTypeRepository.findById(Long.parseLong(list)).get());
-                }
-
-                JobPost jobPost = JobPost.builder()
-                        .openApiJobPostId(Long.parseLong(jsonObject.get("id").toString()))
-                        .logoUrl(imageSource)
-                        .companyName(detail.get("name").toString())
-                        .subject(position.get("title").toString())
-                        .descriptionUrl(jsonObject.get("url").toString())
-                        .startDate(getTimestampToDate(jsonObject.get("opening-timestamp").toString()))
-                        .endDate(getTimestampToDate(jsonObject.get("expiration-timestamp").toString()))
-                        .areas(areas)
-                        .jobs(jobs)
-                        .careerTypes(careerTypes)
-                        .build();
-
-                jobPostRepository.save(jobPost);
             }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
